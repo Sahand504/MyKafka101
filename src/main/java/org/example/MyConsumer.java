@@ -2,6 +2,7 @@ package org.example;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.CooperativeStickyAssignor;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.errors.WakeupException;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -45,10 +46,10 @@ public class MyConsumer {
         try {
             consumer.subscribe(Arrays.asList(topic));
             while (true) {
-                logger.info("Polling records from the consumer...");
+//                logger.info("Polling records from the consumer...");
                 ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
                 for (ConsumerRecord<String, String> record : records) {
-                    logger.info("key: {} | value: {} | partition: {} | offset: {}", record.key(), record.value(), record.partition(), record.offset());
+                    logger.info("partition: {} | offset: {} | key: {} | value: {}", record.partition(), record.offset(), record.key(), record.value());
 
                 }
             }
@@ -75,6 +76,8 @@ public class MyConsumer {
 
         properties.setProperty("group.id", "my-consumer-group-1");
         properties.setProperty("auto.offset.reset", "earliest");
+
+        properties.setProperty("partition.assignment.strategy", CooperativeStickyAssignor.class.getName());
 
         return properties;
     }
